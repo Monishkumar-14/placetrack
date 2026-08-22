@@ -1,0 +1,1 @@
+export { noteService } from './entities';

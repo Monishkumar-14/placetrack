@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+__pycache__/
+venv/
+.venv/
+
+# Build output
+frontend/dist/
+
+# Environment
+.env
+*.env.local
+
+# Database
+*.db
+*.sqlite3
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Gemini
+.gemini/

@@ -1,0 +1,1 @@
+export { offerService } from './entities';

@@ -1,0 +1,1 @@
+export { assessmentService } from './entities';
