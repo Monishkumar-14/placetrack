@@ -18,18 +18,18 @@ export default function CompanyDetailPage() {
 
   const { data: companyData, isLoading: isCompanyLoading } = useQuery({
     queryKey: ['company', id],
-    queryFn: () => companyService.get(id as string),
+    queryFn: () => companyService.get(Number(id)),
     enabled: !!id,
   });
 
   const { data: drivesData, isLoading: isDrivesLoading } = useQuery({
     queryKey: ['drives', { company_id: id }],
-    queryFn: () => driveService.list({ company_id: id }),
+    queryFn: () => driveService.list({ company_id: Number(id) }),
     enabled: !!id,
   });
 
-  const company = companyData;
-  const drives = drivesData || [];
+  const company: any = companyData;
+  const drives: any[] = (drivesData as any) || [];
 
   if (isCompanyLoading) {
     return <div className="space-y-4"><Skeleton className="h-40 w-full" /></div>;

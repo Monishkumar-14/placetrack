@@ -65,8 +65,8 @@ export default function DashboardPage() {
     queryFn: () => analyticsService.funnel(),
   });
 
-  const stats = dashboardData || {};
-  const funnel = funnelData || {};
+  const stats: any = dashboardData || {};
+  const funnel: any = funnelData || {};
 
   const mergedEvents = React.useMemo(() => {
     const allEvents: any[] = [];

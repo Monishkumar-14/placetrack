@@ -42,7 +42,7 @@ export default function AssessmentsPage() {
   const drives = drivesData || [];
 
   const createMutation = useMutation({
-    mutationFn: (data: AssessmentCreate) => assessmentService.create(data),
+    mutationFn: (data: any) => assessmentService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assessments'] });
       toast.success('Assessment created successfully');

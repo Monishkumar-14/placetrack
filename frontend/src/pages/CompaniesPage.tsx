@@ -38,11 +38,10 @@ export default function CompaniesPage() {
 
   const { data: companiesData, isLoading } = useQuery({
     queryKey: ['companies'],
-    queryFn: companyService.list
+    queryFn: () => companyService.list()
   });
 
-  // unwrapped data fix: service already returns the data
-  const companies = companiesData || [];
+  const companies: any[] = (companiesData as any) || [];
 
   const createMutation = useMutation({
     mutationFn: (data: CompanyCreate) => companyService.create(data),
@@ -58,7 +57,7 @@ export default function CompaniesPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => companyService.delete(id),
+    mutationFn: (id: number) => companyService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['companies'] });
       toast.success('Company deleted successfully');
@@ -77,7 +76,7 @@ export default function CompaniesPage() {
     createMutation.mutate(newCompany);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     if (window.confirm('Are you sure you want to delete this company?')) {
       deleteMutation.mutate(id);
     }
