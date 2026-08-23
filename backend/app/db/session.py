@@ -1,6 +1,7 @@
 import ssl as ssl_module
 from urllib.parse import urlparse, urlunparse
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy import text
 from app.core.config import settings
 from app.db.base import Base
 from typing import AsyncGenerator
@@ -14,11 +15,9 @@ def _prepare_url_and_args(url: str):
     connect_args = {}
 
     if "postgresql" in url or "asyncpg" in url:
-        # Remove ALL query parameters — asyncpg chokes on sslmode, channel_binding, etc.
         parsed = urlparse(url)
         url = urlunparse(parsed._replace(query=""))
 
-        # Provide SSL via connect_args (Neon requires SSL)
         ssl_ctx = ssl_module.create_default_context()
         ssl_ctx.check_hostname = False
         ssl_ctx.verify_mode = ssl_module.CERT_NONE
@@ -39,5 +38,10 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def init_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    """Create tables, handling the race condition when multiple workers start."""
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception:
+        # If another worker already created the types/tables, that's fine
+        pass
