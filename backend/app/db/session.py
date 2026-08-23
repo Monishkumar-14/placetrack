@@ -1,5 +1,5 @@
 import ssl as ssl_module
-from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+from urllib.parse import urlparse, urlunparse
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.core.config import settings
 from app.db.base import Base
@@ -7,18 +7,18 @@ from typing import AsyncGenerator
 
 
 def _prepare_url_and_args(url: str):
-    """Strip sslmode from URL (asyncpg doesn't accept it) and return SSL connect_args."""
+    """
+    Strip ALL query params from PostgreSQL URLs (asyncpg doesn't accept
+    sslmode, channel_binding, etc.) and pass SSL via connect_args instead.
+    """
     connect_args = {}
 
     if "postgresql" in url or "asyncpg" in url:
-        # Parse and remove sslmode from query string
+        # Remove ALL query parameters — asyncpg chokes on sslmode, channel_binding, etc.
         parsed = urlparse(url)
-        query_params = parse_qs(parsed.query)
-        query_params.pop("sslmode", None)
-        clean_query = urlencode(query_params, doseq=True)
-        url = urlunparse(parsed._replace(query=clean_query))
+        url = urlunparse(parsed._replace(query=""))
 
-        # asyncpg uses ssl= in connect_args
+        # Provide SSL via connect_args (Neon requires SSL)
         ssl_ctx = ssl_module.create_default_context()
         ssl_ctx.check_hostname = False
         ssl_ctx.verify_mode = ssl_module.CERT_NONE
